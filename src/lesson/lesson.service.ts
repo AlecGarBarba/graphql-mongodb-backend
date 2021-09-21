@@ -12,7 +12,6 @@ export class LessonService {
     ) {}
 
     async getLesson(id: string): Promise<Lesson> {
-        console.log(id);
         return this.lessonRepository.findOne({ id: id }); //curly braces for our own id, not mongodb _id
     }
 
@@ -25,6 +24,10 @@ export class LessonService {
             endDate,
         });
 
-        return await this.lessonRepository.save(lesson);
+        return this.lessonRepository.save(lesson);
+    }
+
+    getLessons(): Promise<Lesson[]> {
+        return this.lessonRepository.find();
     }
 }

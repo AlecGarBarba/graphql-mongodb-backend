@@ -1,4 +1,6 @@
+import { NotFoundException } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { CreateLessonDto } from './dto/create-lesson.dto';
 import { LessonService } from './lesson.service';
 import { LessonType } from './lesson.type';
 
@@ -7,20 +9,23 @@ export class LessonResolver {
     constructor(private lessonService: LessonService) {}
 
     @Query((_returns) => LessonType)
-    getLesson(@Args('id') id: string) {
-        return this.lessonService.getLesson(id);
+    async getLesson(@Args('id') id: string) {
+        const lesson = await this.lessonService.getLesson(id);
+        if (lesson) {
+            return lesson;
+        }
+        throw new NotFoundException(`Could not find lesson with id: ${id}`);
+    }
+
+    @Query((_returns) => [LessonType])
+    getLessons() {
+        return this.lessonService.getLessons();
     }
 
     @Mutation((returns) => LessonType)
     createLesson(
-        @Args('name') name: string,
-        @Args('startDate') startDate: string,
-        @Args('endDate') endDate: string,
+        @Args('createLessonInput') createLessonInput: CreateLessonDto,
     ) {
-        return this.lessonService.createLesson({
-            name,
-            startDate,
-            endDate,
-        });
+        return this.lessonService.createLesson(createLessonInput);
     }
 }
